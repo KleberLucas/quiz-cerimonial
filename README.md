@@ -1,6 +1,14 @@
-# ARCANA ATLAS — Academia Hermética
+# ARCANA ATLAS V4 — Academia Hermética
 
 Aplicação educacional desenvolvida em **HTML, CSS e JavaScript puro**, sem React, backend, banco de dados, CDN de scripts, dependências nem instalação.
+
+## Nova V4: desenhe letras hebraicas no próprio quiz
+
+No **Modo quiz**, escolha **✍ Lousa · desenhar letras hebraicas** em **Conteúdo ou modalidade**. Desenhe com mouse, toque ou caneta e obtenha uma avaliação local da semelhança de sua forma com a letra impressa, com comparativo visual, desfazer e limpar. A modalidade tem **22 desafios** e respeita quais letras estão ativas. Pode também ser misturada às demais pelo seletor de tipos na categoria **Misturar todas**.
+
+São **722 desafios-base no banco completo, 38 tipos de pergunta** e 704 modelos elegíveis por padrão em Misturar todas. O comparador é **heurístico e aproximado**, sem OCR/IA e sem coleta dos desenhos. Consulte **`NOVIDADES-v4.md`** para detalhes do algoritmo, limites e instruções de atualização.
+
+**Arquivos principais da V4:** `index.html`, `styles.css`, `data.js`, `app.js` e **`drawing.js`** (novo). Não elimine `drawing.js`, pois a lousa depende dele.
 
 ## Como abrir
 
@@ -20,6 +28,26 @@ Esta distribuição inclui os caminhos exatos das 78 imagens e o **baixador auto
 
 Se você abrir o novo `index.html` em uma pasta diferente e o navegador tratar o caminho como outra origem, o progresso pode não aparecer. Nesse caso, use **Importar arquivo** para restaurar o backup JSON. Não precisa baixar novamente as imagens se mantiver a pasta `assets/cards`.
 
+## Novidades da V3 — filtros por tipo de pergunta
+
+No **Modo Quiz**, logo abaixo do seletor **Conteúdo ou modalidade**, existe agora o novo seletor expansível **Tipo de pergunta (escolha um ou vários)**. É possível:
+
+- Marcar **Todos os tipos de pergunta** para usar todos os modelos daquela categoria.
+- Desmarcar **Todos os tipos** para escolher apenas um tipo específico, ou combinar vários.
+- Ver, antes de começar, a quantidade exata de desafios disponíveis na combinação de categoria, tipos, letras e cartas ativos.
+- Deixar um tipo ou todos os tipos sem seleção: o botão de iniciar fica inativo quando não houver desafios disponíveis.
+- Personalizar independentemente os tipos de **Letras**, **Tarot**, **Sephiroth**, **Mundos**, **Pilares**, **Caminhos**, **Jogo visual**, **Ordenação** e **Misturar todas**. Cada conteúdo mantém a própria seleção local ao trocar de categoria.
+- Treinar a **ordenação apenas 11→32**, apenas **32→11** ou as duas direções pelo seletor de tipos, mantendo a escolha separada de tamanho (5, 8 ou todos os Arcanos Maiores ativos).
+
+**Duas novas perguntas para cada uma das 22 letras hebraicas (44 questões-base):**
+
+1. **Caminho → nome da letra**. Ex.: “Qual letra hebraica corresponde ao caminho 22?”, com nomes nas alternativas.
+2. **Caminho → apenas símbolos**. Mesmo exercício, mas as alternativas mostram exclusivamente os caracteres hebraicos, sem revelar o nome antes da resposta.
+
+Na **V3**, eram **37 tipos selecionáveis de pergunta** e **700 modelos de desafio** no banco total, com todas as letras e cartas ativas. Na **V3**, o modo **Misturar todas** oferecia inicialmente **682 modelos compatíveis com seu formato de sessão**, pois usa apenas as sequências curtas de cinco cartas na ordenação. A modalidade **Ordenação** inclui outras variações de tamanho, completando o total do banco.
+
+As seleções de tipos são armazenadas junto dos outros dados na mesma chave `localStorage` (`arcana-atlas-v1`) e são exportadas para o arquivo JSON de backup. Ao importar um backup antigo da V1/V2, todos os tipos começam habilitados, sem perda das letras, cartas e estatísticas anteriores.
+
 ## Módulos
 
 - **Alfabeto:** 22 letras, desenho, nome, valor de gematria, associações mnemônicas, astros, 22 caminhos e Arcanos Maiores.
@@ -28,7 +56,7 @@ Se você abrir o novo `index.html` em uma pasta diferente e o navegador tratar o
 - **Quatro mundos:** Atziluth, Briah, Yetzirah, Assiah, naipes e elementos.
 - **Três pilares:** Misericórdia, Equilíbrio e Severidade.
 - **Correspondências:** nomes divinos, arcanjos, coros angélicos, esferas astrais e pilares.
-- **Quiz:** questões aleatórias com alternativas, correção explicada, sessões de 5/10/20/40 questões, resultado final e revisão dos erros.
+- **Quiz:** questões aleatórias com alternativas, correção explicada, sessões de 5/10/20/40 questões, resultado final e revisão dos erros. **Desde a V3, escolha um ou vários tipos de pergunta específicos por categoria. Na V4, há também a lousa de escrita manual.**
 - **NOVO · Caminhos e Arcanos:** questões de múltipla escolha sobre os dois extremos de cada caminho e de cada Arcano Maior.
 - **NOVO · Jogo da Árvore:** o programa apresenta um número de caminho ou uma imagem de Arcano Maior; marque duas Sephiroth clicando na árvore. A confirmação revela a ligação e sua explicação.
 - **NOVO · Ordene os Arcanos:** arraste cartas no desktop ou utilize botões para subir/descer; escolha 5, 8 ou todas as cartas maiores habilitadas, em ordem 11→32 ou 32→11. A ordem é a dos números de caminho da Golden Dawn (não uma sequência de alturas geométricas no desenho).
@@ -71,6 +99,7 @@ Fontes para as correspondências e seu caráter histórico:
 - `styles.css` — interface responsiva e temas.
 - `data.js` — dados do curso (22 letras, 78 cartas, 10 Sephiroth, mundos e pilares).
 - `app.js` — telas, quiz, gráficos interativos, filtros e armazenamento.
+- `drawing.js` — lousa com Pointer Events e comparação heurística local de letras hebraicas.
 - `baixar-cartas.cmd` / `baixar-cartas.ps1` — download das 78 imagens.
 - `assets/cards/` — onde são guardadas as imagens do baralho.
 

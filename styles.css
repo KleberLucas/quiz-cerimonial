@@ -82,3 +82,73 @@ body.light .order-row.order-wrong{background:#f5e3df}
 @media(max-width:1150px){.tree-game{grid-template-columns:minmax(0,1fr) minmax(225px,.85fr)}.quiz-feature-grid{gap:9px}.quiz-feature{padding:14px}}
 @media(max-width:850px){.quiz-feature-grid{grid-template-columns:1fr}.tree-game{grid-template-columns:1fr}.tree-game-board .tree-svg{max-height:540px}.tree-game-side{display:grid;grid-template-columns:190px 1fr;column-gap:22px}.tree-game-side .path-hero,.tree-game-side .tree-arcano{grid-row:span 5}.tree-game-side h3{margin-top:0}}
 @media(max-width:600px){.tree-game-side{display:block}.tree-game-board{padding:7px 3px}.tree-game-board .tree-svg{max-height:535px}.tree-game-side h3{margin-top:17px}.tree-arcano .tarot-image{width:142px}.path-hero{min-height:130px}.path-hero strong{font-size:64px}.order-row{gap:8px;padding:8px}.order-index{width:20px;font-size:16px}.order-row .tarot-image{width:34px;height:54px}.order-row-text strong{font-size:13px}.order-arrow{width:32px;height:34px}.order-instructions{padding:12px}.order-instructions strong{font-size:17px}}
+
+/* V3 · seletor múltiplo de modelos de perguntas no Modo Quiz */
+.form-group .type-optional{font-size:11px;color:var(--subtle);font-weight:400}
+.question-types{position:relative;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--text)}
+.question-types[open]{border-color:#9e8357;box-shadow:0 0 0 2px rgba(222,185,122,.08)}
+.question-types>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;min-height:45px;padding:11px 14px;font-size:13px;user-select:none}
+.question-types>summary::-webkit-details-marker{display:none}
+.question-types>summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:9px}
+.type-summary-icon{color:var(--gold);font-size:15px;transition:transform .2s}
+.question-types[open] .type-summary-icon{transform:rotate(180deg)}
+.type-dropdown{border-top:1px solid var(--line);padding:9px 10px 11px}
+.form-group .type-all,.form-group .type-option{display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--text);margin:0;line-height:1.45}
+.form-group .type-all{padding:11px 10px;background:var(--goldbg);border:1px solid rgba(222,185,122,.17);border-radius:9px;font-size:12px;font-weight:700}
+.form-group .type-all small{margin-left:auto;color:var(--gold2);font-size:11px}
+.form-group .type-all input,.form-group .type-option input{width:16px;height:16px;flex:0 0 16px;accent-color:var(--gold);cursor:pointer}
+.type-scroll{max-height:315px;overflow:auto;overscroll-behavior:contain;margin-top:9px;padding:0 3px;scrollbar-color:var(--line2) transparent;scrollbar-width:thin}
+.type-group{padding:7px 0;border-top:1px solid var(--line)}
+.type-group:first-child{border:0}
+.type-group h4{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--gold);margin:7px 8px 8px}
+.form-group .type-option{padding:9px 10px;font-size:12px;border-radius:8px;transition:background .15s}
+.form-group .type-option:hover,.form-group .type-option:focus-within{background:var(--panel2)}
+.form-group .type-option span{flex:1}
+.type-hint{font-size:11px;line-height:1.5;color:var(--muted);margin:9px 1px 0}
+.type-hint strong,#q-available{color:var(--gold2)}
+@media(max-width:600px){.type-scroll{max-height:275px}.question-types>summary{font-size:12px}.quiz-config{padding:18px}}
+/* Ajuste de leitura dos indicadores laterais, em desktop e celular. */
+.quiz-tips .fact{display:flex;justify-content:space-between;align-items:baseline;gap:15px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}
+.quiz-tips .fact:last-child{border-bottom:none}
+.quiz-tips .fact span{min-width:0;color:var(--muted)}
+.quiz-tips .fact strong{flex:0 0 auto;color:var(--gold2);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* V4 · Lousa de caligrafia hebraica, pointer events e correção local */
+.quiz-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.draw-game{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(250px,.85fr);gap:22px;align-items:start}
+.draw-main,.draw-side{min-width:0;border:1px solid var(--line);border-radius:14px;padding:19px;background:var(--panel2)}
+.draw-header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:12px}
+.draw-header strong,.draw-step{letter-spacing:1.8px;font-size:10px;color:var(--gold2);font-weight:700}
+.draw-header p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.5}
+.draw-dot{font-size:25px;color:var(--gold)}
+.draw-canvas,.draw-result-picture{display:block;width:100%;height:auto;aspect-ratio:640 / 460;border:2px solid #b39a72;border-radius:12px;background:#fffefa;box-shadow:inset 0 0 0 7px #fff8ec,0 7px 18px #0002;overflow:hidden}
+.draw-canvas{cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:contain}
+.draw-result-picture{display:grid;place-items:center}
+.draw-result-picture img{width:100%;height:100%;object-fit:contain}
+.draw-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;flex-wrap:wrap}
+.draw-strokes{font-size:11px;color:var(--muted)}
+.draw-buttons{display:flex;gap:7px;flex-wrap:wrap}
+.draw-buttons .btn{font-size:12px}
+.draw-confirm{display:block;margin-top:15px;width:100%;min-height:47px}
+.draw-side{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.draw-letter-name{font:normal 39px Georgia,serif;color:var(--text);margin-top:15px}
+.draw-letter-pronounce{color:var(--gold2);font-size:13px}
+.draw-instruction{font-size:12px;line-height:1.7;color:var(--muted);max-width:270px;margin-top:9px}
+.draw-target-holder{display:grid;place-items:center;border:1px solid #91785570;border-radius:12px;background:var(--goldbg);height:164px;width:min(100%,240px);margin:12px auto}
+.draw-target{font-family:Arial,'Noto Sans Hebrew',sans-serif;font-size:126px;color:var(--gold2);font-weight:400;line-height:1}
+.draw-unknown{font:normal 88px Georgia,serif;color:var(--gold2);line-height:1}
+.draw-disclaimer{font-size:11px;line-height:1.7;color:var(--muted);text-align:left;margin:10px 0}
+.draw-learning-tip{padding:13px 15px;border-left:2px solid var(--gold);background:var(--goldbg);text-align:left;width:100%;border-radius:0 8px 8px 0}
+.draw-learning-tip strong{font-size:12px;color:var(--gold2)}
+.draw-learning-tip p{font-size:11px;line-height:1.7;color:var(--muted);margin:5px 0 0}
+.draw-comparison{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+.draw-sample{display:flex;align-items:center;justify-content:center;flex-direction:column;border:1px solid var(--line2);border-radius:11px;background:var(--panel);padding:12px;min-height:190px}
+.draw-sample small{font-size:10px;letter-spacing:1px;color:var(--gold);font-weight:700;text-align:center}
+.draw-sample img{max-width:100%;max-height:145px;width:auto;object-fit:contain;border-radius:5px;margin-top:9px}
+.draw-sample .draw-target{font-size:112px;margin-top:9px}
+.draw-main .feedback{margin-top:16px}
+body.light .draw-main,body.light .draw-side{background:#f7f0e5}
+body.light .draw-sample{background:#fffaf0}
+body.light .draw-target{color:#79582c}
+@media(max-width:900px){.draw-game{grid-template-columns:1fr}.draw-side{display:grid;grid-template-columns:1fr 160px;align-items:center;text-align:left}.draw-side .draw-target-holder{grid-column:2;grid-row:1/span 5;height:145px;margin:0}.draw-side .draw-disclaimer,.draw-side .draw-learning-tip{grid-column:1/-1}.draw-side .draw-letter-name{margin:4px 0}.draw-side .draw-instruction{margin:0}}
+@media(max-width:580px){.draw-main,.draw-side{padding:13px}.draw-side{display:flex;text-align:center}.draw-letter-name{font-size:32px}.draw-target-holder{width:100%!important;max-width:250px;margin:8px auto!important}.draw-comparison{gap:7px}.draw-sample{padding:6px;min-height:150px}.draw-sample .draw-target{font-size:90px}.draw-buttons{width:100%;display:grid;grid-template-columns:1fr 1fr}.draw-buttons .btn{white-space:normal;font-size:11px;padding:8px}.draw-toolbar{gap:6px}.draw-game{gap:12px}.quiz-feature-grid{grid-template-columns:1fr}}
