@@ -39,7 +39,13 @@ const QUESTION_TYPE_GROUPS=[
     ['tree-path','Número do caminho → marque duas Sephiroth'],
     ['tree-major','Imagem do Arcano Maior → marque duas Sephiroth']]},
   {cat:'drawing',title:'Lousa · desenhe as letras hebraicas',types:[
-    ['draw-letter','Nome da letra → desenhe seu símbolo à mão']]},
+    ['draw-letter','Nome da letra → desenhe seu símbolo à mão'],
+    ['draw-card','Imagem do Arcano Maior → desenhe a letra do caminho'],
+    ['draw-path','Número do caminho → desenhe a letra hebraica']]},
+  {cat:'typing',title:'Digitação · escreva a resposta',types:[
+    ['type-card-number','Imagem do Arcano Maior → digite o número do Arcano'],
+    ['type-card-path','Imagem do Arcano Maior → digite o número do caminho'],
+    ['type-letter-name','Símbolo hebraico → digite o nome da letra']]},
   {cat:'ordering',title:'Jogo de ordenação',types:[
     ['ordering-down','Ordenar Arcanos · caminhos 11 → 32'],
     ['ordering-up','Ordenar Arcanos · caminhos 32 → 11']]},
@@ -86,8 +92,22 @@ const QUESTION_TYPE_GROUPS=[
 const QUESTION_TYPE_LOOKUP=Object.fromEntries(QUESTION_TYPE_GROUPS.map(g=>[g.cat,g.types.map(([id,label])=>({id,label}))]));
 const QUESTION_TYPE_BY_PREFIX=QUESTION_TYPE_GROUPS.flatMap(g=>g.types.map(([id])=>({cat:g.cat,id}))).sort((a,b)=>b.id.length-a.id.length);
 function inferQuestionType(q){return QUESTION_TYPE_BY_PREFIX.find(t=>t.cat===q.cat&&q.key.startsWith(t.id+'-'))?.id||null}
+// Se a seleção da V4 era literalmente "todos", expande somente essa seleção.
+// Seleções parciais, inclusive de um único modelo, permanecem intactas.
+function migrateQuizTypesV5(target){
+  if(target.quizV5Migrated)return;
+  const added=['draw-card','draw-path','type-card-number','type-card-path','type-letter-name'];
+  const oldAll=allTypeIds('all').filter(id=>!added.includes(id));
+  const previousAll=target.quizTypes?.all;
+  if(Array.isArray(previousAll)&&previousAll.length===oldAll.length&&oldAll.every(id=>previousAll.includes(id))){
+    target.quizTypes.all=[...oldAll,...added];
+  }
+  target.quizV5Migrated=true;
+}
+
 function typeGroupsFor(cat){return cat==='all'?QUESTION_TYPE_GROUPS:QUESTION_TYPE_GROUPS.filter(g=>g.cat===cat)}
 function allTypeIds(cat){return typeGroupsFor(cat).flatMap(g=>g.types.map(t=>t[0]))}
+migrateQuizTypesV5(state);
 function selectedTypes(cat){
   const valid=allTypeIds(cat),stored=state.quizTypes?.[cat];
   if(!Array.isArray(stored))return valid;
@@ -192,18 +212,19 @@ function quizStartPage(){
   let m=scopeMetrics();
   const orderedMajor=T.filter(c=>c.type==='major'&&state.cards.includes(c.id)).length;
   const chosenCat=chosenQuizCategory(),prevCount=Number(state.quizPreferences?.count)||10,prevOrder=state.quizPreferences?.orderSetting||'5';
-  return header('Treine seu conhecimento','PRÁTICA · QUIZ INTERATIVO','Identifique letras, desenhe símbolos hebraicos à mão, ligue caminhos às Sephiroth e ordene os Arcanos.')+`
+  return header('Treine seu conhecimento','PRÁTICA · QUIZ INTERATIVO','Treine as correspondências com múltipla escolha, desenho, digitação, desafios visuais e ordenação de Arcanos.')+`
   <div class="quiz-feature-grid">
     <div class="quiz-feature"><span>◉</span><strong>Encontre as duas Sephiroth</strong><p>Veja um caminho ou a imagem de um Arcano Maior e marque as duas esferas diretamente na árvore.</p></div>
-    <div class="quiz-feature"><span>✍</span><strong>Desenhe o alfabeto hebraico</strong><p>Use o mouse, o dedo ou a caneta e compare seu desenho com a forma impressa de cada letra.</p></div>
+    <div class="quiz-feature"><span>✍</span><strong>Desenhe letras de memória</strong><p>Pratique a partir do nome, do número do caminho ou da imagem do Arcano Maior, sem revelar a letra.</p></div>
     <div class="quiz-feature"><span>↕</span><strong>Ordene os Arcanos</strong><p>Reorganize as cartas do caminho 11 ao 32 ou do 32 ao 11. Arraste no computador ou use as setas.</p></div>
-    <div class="quiz-feature"><span>◇</span><strong>Associe caminhos e cartas</strong><p>Responda perguntas de múltipla escolha sobre os pares de Sephiroth de cada caminho e Arcano Maior.</p></div>
+    <div class="quiz-feature"><span>⌨</span><strong>Responda digitando</strong><p>Escreva o nome da letra ou o número do Arcano/caminho. Sem alternativas para dar pistas.</p></div>
   </div>
   <div class="quiz-start"><div class="content-card quiz-config"><h3>Prepare sua sessão</h3>
   <div class="form-group"><label for="q-category">Conteúdo ou modalidade</label><select id="q-category" class="field">
     <option value="all" ${chosenCat==='all'?'selected':''}>Misturar todas as categorias</option>
     <option value="tree" ${chosenCat==='tree'?'selected':''}>Jogo visual · encontre as duas Sephiroth</option>
     <option value="drawing" ${chosenCat==='drawing'?'selected':''}>✍ Lousa · desenhar letras hebraicas</option>
+    <option value="typing" ${chosenCat==='typing'?'selected':''}>⌨ Digitação · escreva a resposta</option>
     <option value="ordering" ${chosenCat==='ordering'?'selected':''}>Jogo de ordenação · Arcanos Maiores</option>
     <option value="paths" ${chosenCat==='paths'?'selected':''}>Caminhos e Arcanos · múltipla escolha</option>
     <option value="letters" ${chosenCat==='letters'?'selected':''}>Letras hebraicas e caminhos</option>
@@ -216,7 +237,7 @@ function quizStartPage(){
   <div class="form-group" id="order-config" ${chosenCat==='ordering'?'':'hidden'}><label for="q-order-size">Cartas por desafio</label><select id="q-order-size" class="field"><option value="5" ${prevOrder==='5'?'selected':''}>Até 5 cartas por desafio</option><option value="8" ${prevOrder==='8'?'selected':''}>Até 8 cartas por desafio</option><option value="all" ${prevOrder==='all'?'selected':''}>Todas as cartas maiores habilitadas (${orderedMajor})</option></select>
     <p class="type-hint">Escolha a direção no seletor <strong>Tipo de pergunta</strong>: 11 → 32, 32 → 11 ou ambas.</p></div>
   <div class="form-group"><label for="q-count">Quantidade de perguntas</label><select id="q-count" class="field"><option value="5" ${prevCount===5?'selected':''}>5 questões · revisão rápida</option><option value="10" ${prevCount===10?'selected':''}>10 questões · sessão padrão</option><option value="20" ${prevCount===20?'selected':''}>20 questões · prática intensa</option><option value="40" ${prevCount===40?'selected':''}>40 questões · maratona</option></select></div>
-  <div class="note"><strong>Seu filtro:</strong> ${state.letters.length} letras, ${state.cards.length} cartas e ${orderedMajor} Arcanos Maiores habilitados. Caminhos na árvore usam as letras ativas; desafios com imagens e ordenação usam Arcanos Maiores ativos. A ordem segue a numeração hermética 11–32, não a altura geométrica de cada linha da árvore.</div>
+  <div class="note"><strong>Seu filtro:</strong> ${state.letters.length} letras, ${state.cards.length} cartas e ${orderedMajor} Arcanos Maiores habilitados. Desenho por imagem exige <strong>carta e letra correspondente ativas</strong>; desenho por caminho e digitação de nome exigem a letra ativa; digitação por carta exige o Arcano ativo. A ordem segue a numeração hermética 11–32, não a altura geométrica de cada linha da árvore.</div>
   <div class="flex-gap"><button class="btn" data-start-quiz ${eligibleQuizQuestions(chosenCat).length?'':'disabled'}>Começar sessão ✦</button><button class="btn ghost" data-route="settings">Configurar conteúdo ⚙</button></div></div>
   <aside class="content-card quiz-tips"><div class="ornament">✧</div><h3>Aprenda praticando.</h3><p>Além das perguntas tradicionais, experimente a lousa de escrita hebraica no mouse ou no celular. A avaliação é estimativa, feita no navegador, sem IA nem envio de desenhos.</p><div class="fact"><span>Modelos de desafio ativos</span><strong>${availableQuestions().length}</strong></div><div class="fact"><span>Respostas até agora</span><strong>${m.attempts}</strong></div><div class="fact"><span>Aproveitamento</span><strong>${m.percent}%</strong></div><div class="fact"><span>Cartas habilitadas</span><strong>${state.cards.length} / 78</strong></div><div class="fact"><span>Letras habilitadas</span><strong>${state.letters.length} / 22</strong></div></aside></div>`;
 }
@@ -234,6 +255,8 @@ for(const l of eligibleLetters){
   const pairs=L.filter(x=>x.id!==l.id).map(formatPath);
   append(question(`path-pair-${l.path}`,'paths',`O caminho ${l.path} conecta quais duas Sephiroth?`,formatPath(l),pairs,`Caminho ${l.path} (${l.name}): ${formatPath(l)}.`,{subject:'letter:'+l.id}));
   append({key:`draw-letter-${l.id}`,cat:'drawing',kind:'draw',prompt:`Desenhe a letra ${l.name}.`,letterId:l.id,answer:l.he,explanation:`${l.name} (${l.pronunciation}) é escrita ${l.he}. Caminho ${l.path}; ${l.shape} A avaliação compara a forma com uma fonte impressa e pode errar em algumas caligrafias.`,subject:'letter:'+l.id});
+  append({key:`draw-path-${l.id}`,cat:'drawing',kind:'draw',prompt:`Caminho ${l.path}: desenhe a letra hebraica correspondente.`,path:l.path,letterId:l.id,answer:l.he,explanation:`O caminho ${l.path} corresponde a ${l.name} (${l.he}), que conecta ${formatPath(l)}.`,subject:'letter:'+l.id});
+  append({key:`type-letter-name-${l.id}`,cat:'typing',kind:'type',inputMode:'letter-name',prompt:'Qual é o nome desta letra hebraica? Digite sua resposta.',glyph:l.he,letterId:l.id,answer:l.name,explanation:`O símbolo ${l.he} representa ${l.name}, associado ao caminho ${l.path}.`,subject:'letter:'+l.id});
   append({key:`tree-path-${l.path}`,cat:'tree',kind:'tree',prompt:`Caminho ${l.path}: clique nas duas Sephiroth que ele conecta.`,path:l.path,endpoints:[l.from,l.to],answer:formatPath(l),explanation:`O caminho ${l.path} é associado a ${l.name} (${l.he}), conectando ${formatPath(l)}.`,subject:'letter:'+l.id});
 }
 for(const c of selectedMajor){
@@ -241,6 +264,9 @@ for(const c of selectedMajor){
   const pairs=L.filter(x=>x.id!==l.id).map(formatPath);
   append(question(`major-pair-${c.id}`,'paths',`Quais Sephiroth são ligadas pelo Arcano Maior ${c.name}?`,formatPath(l),pairs,`${c.name} corresponde à letra ${l.name}, caminho ${l.path}: ${formatPath(l)}.`,{imageId:c.id,subject:'tarot:'+c.id}));
   append({key:`tree-major-${c.id}`,cat:'tree',kind:'tree',prompt:'Observe a imagem do Arcano Maior. Quais duas Sephiroth ele conecta?',imageId:c.id,path:l.path,endpoints:[l.from,l.to],answer:formatPath(l),explanation:`${c.name} → ${l.name} (${l.he}) → caminho ${l.path}, ${formatPath(l)}.`,subject:'tarot:'+c.id});
+  if(state.letters.includes(l.id))append({key:`draw-card-${c.id}`,cat:'drawing',kind:'draw',prompt:'Observe o Arcano Maior: desenhe a letra hebraica do seu caminho.',imageId:c.id,path:c.path,letterId:l.id,answer:l.he,explanation:`${c.name} (Arcano ${c.number}) corresponde ao caminho ${c.path}, letra ${l.name} (${l.he}).`,subject:'tarot:'+c.id});
+  append({key:`type-card-number-${c.id}`,cat:'typing',kind:'type',inputMode:'card-number',prompt:'Qual é o NÚMERO deste Arcano Maior? Digite em algarismos romanos ou arábicos.',imageId:c.id,cardId:c.id,answer:c.number,explanation:`Esta carta é ${c.name}, Arcano ${c.number}. Caminho hermético ${c.path}.`,subject:'tarot:'+c.id});
+  append({key:`type-card-path-${c.id}`,cat:'typing',kind:'type',inputMode:'card-path',prompt:'Qual é o NÚMERO DO CAMINHO hermético deste Arcano Maior? Digite um número de 11 a 32.',imageId:c.id,cardId:c.id,answer:String(c.path),explanation:`${c.name} (Arcano ${c.number}) está associada ao caminho ${c.path}, letra ${l.name} (${l.he}).`,subject:'tarot:'+c.id});
 }
 const enabledMajors=[...selectedMajor].sort((a,b)=>a.path-b.path);
 if(enabledMajors.length>=3){
@@ -290,6 +316,48 @@ function recordAnswer(q,chosen,ok,selectedIndex=0,extra={}){
   const key=q.subject||q.key;
   const st=state.stats[key]||{attempts:0,correct:0};st.attempts++;if(ok)st.correct++;
   state.stats[key]=st;persist();render();
+}
+// Correção de digitação: não usa aproximação/IA; aceita entradas equivalentes
+// (romanos/arábicos e transliterações usuais), sem tolerar números errados.
+const LETTER_NAME_ALIASES={
+  Aleph:['alef','alefh','alef'], Beth:['bet','beit','beth','beith'],
+  Gimel:['gimmel','guimel','guimel'], Daleth:['dalet','daleth'],
+  Heh:['he','hei','hey','heh'], Vav:['vau','vav','waw'],
+  Zayin:['zain','zayin'], Cheth:['chet','het','heth','cheth'],
+  Teth:['tet','teth'], Yod:['iod','yud','yod'],
+  Kaph:['kaf','kaph','caf','caph'], Lamed:['lamed','lamedh'],
+  Mem:['mem'], Nun:['nun'], Samekh:['samech','samek','samekh'],
+  Ayin:['ain','ayin'], Peh:['pe','pei','peh'],
+  Tzaddi:['tzadi','tsadi','tsaddi','tzaddi','tsade','tzade','tzadik'],
+  Qoph:['qof','kof','cof','qoph','koph'], Resh:['reish','resh','resh'],
+  Shin:['shin','sin'], Tav:['tav','taw','taf']
+};
+function normalizeWritten(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim().replace(/\s+/g,' ')}
+function roman(n){if(n===0)return '0';let result='',pairs=[[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];for(let [k,x] of pairs)while(n>=k){result+=x;n-=k}return result;}
+function typingCorrect(q,written){
+  const value=normalizeWritten(written);
+  if(!value)return false;
+  if(q.inputMode==='letter-name'){
+    const l=L.find(x=>x.id===q.letterId);
+    return [l.name,...(LETTER_NAME_ALIASES[l.name]||[])].some(x=>normalizeWritten(x)===value);
+  }
+  if(q.inputMode==='card-number'){
+    const c=T.find(x=>x.id===q.cardId),n=c.letter;
+    return value===String(n)||value===roman(n).toLowerCase()||(n===0&&value==='zero')||(value.replace(/^0+(?=\d)/,'')===String(n));
+  }
+  if(q.inputMode==='card-path'){
+    const n=Number(q.answer),plain=value.replace(/^caminho\s*(?:n[º°.]?\s*)?/,'').replace(/^0+(?=\d)/,'');
+    return plain===String(n);
+  }
+  return false;
+}
+function typingConfirm(){
+  if(!session||session.selected!==null)return;
+  const q=session.questions[session.index];if(q?.kind!=='type')return;
+  const typed=$('#typed-answer')?.value.trim()||'';
+  if(!typed){$('#typed-answer')?.focus();toast('Digite sua resposta antes de conferir.');return;}
+  const ok=typingCorrect(q,typed);
+  recordAnswer(q,typed,ok,0);
 }
 function quizAnswer(idx){
   if(!session||session.selected!==null)return;
@@ -386,21 +454,46 @@ function quizTreePanel(q,answered){
 function quizDrawPanel(q,answered){
   const l=L.find(x=>x.id===q.letterId),result=session.drawResult;
   const snap=session.drawSnapshot;
+  // Nos modos carta/caminho, ocultar o nome da letra até a resposta ser avaliada.
+  const giveName=q.type==='draw-letter'||answered;
+  const source=q.imageId?`<div class="draw-source-card"><span class="draw-source-label">CARTA DO DESAFIO</span>${quizImageHTML(T.find(c=>c.id===q.imageId))}</div>`:
+    q.type==='draw-path'?`<div class="draw-source-path"><span>CAMINHO</span><strong>${q.path}</strong></div>`:'';
   return `<div class="draw-game ${answered?'draw-reviewed':''}">
     <div class="draw-main">
       <div class="draw-header"><div><strong>LOUSA DE CALIGRAFIA</strong><p>${answered?'Seu desenho foi comparado com um modelo impresso.':'Desenhe com mouse, touch ou caneta. Não é necessário respeitar a ordem dos traços.'}</p></div><span class="draw-dot">✎</span></div>
-      ${answered?`<div class="draw-result-picture"><img src="${snap}" alt="Seu desenho da letra ${safe(l.name)}"></div>`:`<canvas id="draw-canvas" class="draw-canvas" width="640" height="460" aria-label="Lousa para desenhar a letra ${safe(l.name)} com mouse ou toque">Seu navegador precisa oferecer suporte a canvas.</canvas>`}
+      ${answered?`<div class="draw-result-picture"><img src="${snap}" alt="Seu desenho da letra hebraica"></div>`:`<canvas id="draw-canvas" class="draw-canvas" width="640" height="460" aria-label="Lousa para desenhar a letra hebraica com mouse ou toque">Seu navegador precisa oferecer suporte a canvas.</canvas>`}
       ${answered?`<div class="draw-comparison"><div class="draw-sample"><small>SEU DESENHO</small><img src="${snap}" alt="Traços desenhados por você"></div><div class="draw-sample"><small>MODELO DA LETRA ${safe(l.name.toUpperCase())}</small><span lang="he" dir="rtl" class="draw-target">${safe(l.he)}</span></div></div>
         <div class="feedback" role="status"><strong>${result.ok?'✓':'↻'} ${safe(result.verdict)} · ${result.score}/100</strong><p>${safe(result.details)}</p><p>${safe(q.explanation)}</p></div>`:
         `<div class="draw-toolbar"><span id="draw-strokes" class="draw-strokes">0 traços</span><div class="draw-buttons"><button class="btn ghost small" data-draw-undo disabled>↶ Desfazer traço</button><button class="btn ghost small" data-draw-clear disabled>⌫ Limpar lousa</button></div></div><button class="btn draw-confirm" data-draw-confirm disabled>Avaliar meu desenho ✓</button>`}
     </div>
-    <aside class="draw-side"><div class="draw-step">✦ DESAFIO DE MEMORIZAÇÃO</div><div class="draw-letter-name">${safe(l.name)}</div><div class="draw-letter-pronounce">${safe(l.pronunciation)}</div><div class="draw-instruction">${answered?'Símbolo revelado':'Desenhe de memória — o símbolo só aparece depois de você conferir.'}</div>
+    <aside class="draw-side"><div class="draw-step">✦ DESAFIO DE MEMORIZAÇÃO</div>
+      ${source}
+      <div class="draw-letter-name">${giveName?safe(l.name):'Qual é a letra?'}</div>
+      ${giveName?`<div class="draw-letter-pronounce">${safe(l.pronunciation)}</div>`:''}
+      <div class="draw-instruction">${answered?'Símbolo revelado':'Desenhe de memória — o símbolo só aparece depois de conferir.'}</div>
       <div class="draw-target-holder">${answered?`<span lang="he" dir="rtl" class="draw-target">${safe(l.he)}</span>`:'<span class="draw-unknown" aria-hidden="true">?</span>'}</div>
-      <p class="draw-disclaimer">O reconhecimento é uma comparação de contornos, <strong>não um OCR nem IA</strong>. Fontes hebraicas, traços e estilos caligráficos variam; o resultado é um indicador para treino, não uma correção infalível.</p>
-      <div class="draw-learning-tip"><strong>Dica para aprender</strong><p>Observe os cantos, as curvas, o número de hastes e a abertura da letra. Tente novamente de memória na próxima rodada.</p></div>
+      <p class="draw-disclaimer">A semelhança é calculada por contornos, <strong>sem OCR nem IA</strong>. Fontes e caligrafias variam; a correção é um indicador para estudo, não uma avaliação infalível.</p>
+      <div class="draw-learning-tip"><strong>Dica para aprender</strong><p>Compare cantos, curvas, hastes e abertura da letra. Depois tente novamente de memória.</p></div>
     </aside>
   </div>`;
 }
+function quizTypingPanel(q,answered){
+  const typed=answered?session.answers.at(-1).chosen:'';
+  const correct=answered&&session.answers.at(-1).ok;
+  const image=q.imageId?`<div class="typing-card-image">${quizImageHTML(T.find(c=>c.id===q.imageId))}</div>`:'';
+  const glyph=q.glyph?`<div class="typing-glyph hebrew" lang="he" dir="rtl">${safe(q.glyph)}</div>`:'';
+  const helper=q.inputMode==='card-number'?'Aceita 0 a 21 ou algarismos romanos (I, II, III…).':q.inputMode==='card-path'?'Digite o número do caminho, entre 11 e 32.':'Digite o nome da letra em português ou transliteração comum, sem consultar alternativas.';
+  const placeholder=q.inputMode==='letter-name'?'Ex.: Gimel':q.inputMode==='card-number'?'Ex.: III ou 3':'Ex.: 14';
+  return `<div class="typing-game"><div class="typing-reference">${image||glyph}<div class="typing-image-caption">${q.imageId?'Rider–Waite–Smith · Arcano Maior':'Alfabeto hebraico · identifique o símbolo'}</div></div>
+    <form id="typing-answer-form" class="typing-form" autocomplete="off">
+      <label for="typed-answer">Sua resposta</label>
+      <div class="typing-input-row"><input class="field typing-answer ${answered?(correct?'typing-correct':'typing-incorrect'):''}" id="typed-answer" name="answer" type="text" ${q.inputMode==='letter-name'?'':'inputmode="text"'} spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="${placeholder}" value="${safe(typed)}" ${answered?'disabled':''} aria-describedby="typing-help" maxlength="90">
+      ${answered?'':`<button class="btn typing-submit" type="submit">Conferir ✓</button>`}</div>
+      <p class="typing-hint" id="typing-help">${helper}</p>
+      ${answered?`<div class="feedback ${correct?'typing-feedback-correct':'typing-feedback-wrong'}" role="status"><strong>${correct?'✓ Resposta correta!':'✕ Resposta incorreta.'}</strong><p>${correct?'Você digitou: ':`Sua resposta: ${safe(typed)} · `}<strong>${correct?safe(typed):`Correto: ${safe(q.answer)}`}</strong></p><p>${safe(q.explanation)}</p></div>`:''}
+    </form></div>`;
+}
+
 function quizOrderPanel(q,answered){
   const draft=session.orderDraft;
   const matched=draft.filter((id,i)=>id===q.orderIds[i]).length;
@@ -431,20 +524,20 @@ function quizPanel(){
     const cls=answered?(a===q.answer?'correct':i===session.selected?'incorrect':''):'';
     return `<button class="answer ${cls}" data-answer="${i}" ${answered?'disabled':''}><span class="answer-mark">${answered&&a===q.answer?'✓':answered&&i===session.selected?'×':'ABCD'[i]}</span>${q.hebrewOptions?`<span class="option-hebrew" lang="he">${safe(a)}</span>`:`<span>${safe(a)}</span>`}</button>`;
   }).join('')}</div>${answered?`<div class="feedback" aria-live="polite"><strong>${correct?'✓ Resposta correta!':'✕ Ainda não. Resposta: '+safe(q.answer)}</strong><p>${safe(q.explanation)}</p></div>`:''}`;
-  const body=q.kind==='tree'?quizTreePanel(q,answered):q.kind==='order'?quizOrderPanel(q,answered):q.kind==='draw'?quizDrawPanel(q,answered):regular;
-  const labels={letters:'ALFABETO HEBRAICO',tarot:'TAROT RIDER–WAITE',cabala:'CABALA HERMÉTICA',worlds:'QUATRO MUNDOS',pillars:'OS PILARES',paths:'CAMINHOS · MÚLTIPLA ESCOLHA',tree:'JOGO · ÁRVORE DA VIDA',ordering:'JOGO · ORDEM DOS ARCANOS',drawing:'LOUSA · DESENHE AS LETRAS'};
+  const body=q.kind==='tree'?quizTreePanel(q,answered):q.kind==='order'?quizOrderPanel(q,answered):q.kind==='draw'?quizDrawPanel(q,answered):q.kind==='type'?quizTypingPanel(q,answered):regular;
+  const labels={letters:'ALFABETO HEBRAICO',tarot:'TAROT RIDER–WAITE',cabala:'CABALA HERMÉTICA',worlds:'QUATRO MUNDOS',pillars:'OS PILARES',paths:'CAMINHOS · MÚLTIPLA ESCOLHA',tree:'JOGO · ÁRVORE DA VIDA',ordering:'JOGO · ORDEM DOS ARCANOS',drawing:'LOUSA · DESENHE AS LETRAS',typing:'DIGITAÇÃO · RESPOSTA LIVRE'};
   return `<div class="quiz-panel ${q.kind?'quiz-panel-wide':''}"><div class="quiz-progress-head"><span>QUESTÃO ${session.index+1} DE ${count}</span><span>${session.answers.filter(a=>a.ok).length} acertos</span></div><div class="progress-track"><div class="progress-fill" style="width:${(session.index+(answered?1:0))/count*100}%"></div></div>
   <section class="question-box"><span class="quiz-kicker">${labels[q.cat]}</span><h2>${safe(q.prompt)}</h2>${body}</section>
-  <div class="quiz-bottom"><button class="btn ghost small" data-end-quiz>Encerrar prática</button>${answered?`<button class="btn" data-next-quiz>${session.index+1>=count?'Concluir sessão ↗':'Próxima questão →'}</button>`:'<span class="subtle" style="font-size:12px">'+(q.kind==='tree'?'Selecione duas Sephiroth na árvore.':q.kind==='order'?'Organize as cartas e confira.':q.kind==='draw'?'Desenhe a letra na lousa e avalie.':'Escolha uma alternativa para continuar.')+'</span>'}</div></div>`;
+  <div class="quiz-bottom"><button class="btn ghost small" data-end-quiz>Encerrar prática</button>${answered?`<button class="btn" data-next-quiz>${session.index+1>=count?'Concluir sessão ↗':'Próxima questão →'}</button>`:'<span class="subtle" style="font-size:12px">'+(q.kind==='tree'?'Selecione duas Sephiroth na árvore.':q.kind==='order'?'Organize as cartas e confira.':q.kind==='draw'?'Desenhe a letra na lousa e avalie.':q.kind==='type'?'Digite sua resposta e confirme.':'Escolha uma alternativa para continuar.')+'</span>'}</div></div>`;
 }
 function settingItem(id,name,sub,glyph,type){let checked=type==='letter'?state.letters.includes(id):state.cards.includes(id);return `<label class="toggle-item"><input type="checkbox" data-setting="${type}" value="${id}" ${checked?'checked':''} aria-label="Incluir ${safe(name)} no quiz"><span class="toggle-he">${glyph||'✦'}</span><span class="toggle-name">${safe(name)}<small class="toggle-sub">${safe(sub)}</small></span></label>`}
 function configGroups(){let q=filters.settings.toLocaleLowerCase('pt-BR').trim();const letterArr=L.filter(l=>(l.name+' '+l.he+' '+l.path).toLocaleLowerCase('pt-BR').includes(q));const cardArr=T.filter(c=>(c.name+' '+c.keywords).toLocaleLowerCase('pt-BR').includes(q));let showL=filters.settingsGroup==='all'||filters.settingsGroup==='letters',showC=filters.settingsGroup==='all'||filters.settingsGroup==='cards';return `${showL?`<section class="config-group"><div class="config-head"><div><h2>Letras hebraicas <span class="pill-count">${state.letters.length}/22</span></h2><p>Ative apenas as letras que deseja estudar nos exercícios.</p></div><div class="flex-gap"><button class="btn ghost tiny" data-bulk="letters:on">Todas</button><button class="btn ghost tiny" data-bulk="letters:off">Nenhuma</button></div></div><div class="config-list">${letterArr.map(l=>settingItem(l.id,l.name,`Caminho ${l.path}`,l.he,'letter')).join('')}</div></section>`:''}${showC?`<section class="config-group"><div class="config-head"><div><h2>Cartas do tarot <span class="pill-count">${state.cards.length}/78</span></h2><p>Arcanos Maiores e Menores podem ser ligados individualmente.</p></div><div class="flex-gap"><button class="btn ghost tiny" data-bulk="cards:on">Todas</button><button class="btn ghost tiny" data-bulk="cards:off">Nenhuma</button><button class="btn ghost tiny" data-bulk="major:off">Pausar maiores</button><button class="btn ghost tiny" data-bulk="minor:off">Pausar menores</button></div></div><div class="config-list">${cardArr.map(c=>settingItem(c.id,c.name,c.type==='major'?'Arcano maior':bySuit(c.suit).name,'◈','card')).join('')}</div></section>`:''}`}
 function settingsPage(){return header('Personalize sua jornada','CONFIGURAÇÕES · CONTEÚDO DO QUIZ','Tudo começa ativado. Escolha somente as letras e cartas que já estudou. Suas escolhas e seu histórico ficam salvos localmente neste navegador.')+`<div class="note"><strong>Importante:</strong> desativar uma carta ou letra impede que ela seja sorteada como foco da pergunta; ela ainda pode aparecer entre as alternativas. Perguntas sobre Sephiroth, mundos e pilares continuam disponíveis em suas categorias.</div><div class="toolbar"><input id="settings-search" class="field search" placeholder="Filtrar letras e cartas…" value="${safe(filters.settings)}" aria-label="Pesquisar itens"><div class="segmented">${[['all','Tudo'],['letters','Letras'],['cards','Tarot']].map(([id,label])=>`<button class="${filters.settingsGroup===id?'active':''}" data-filter-settings="${id}">${label}</button>`).join('')}</div></div><div id="config-results">${configGroups()}</div><div class="config-actions"><button class="btn secondary" data-export>Exportar progresso e configurações ↓</button><button class="btn ghost" data-import>Importar arquivo ↑</button><input type="file" id="import-input" accept="application/json,.json" hidden><button class="btn danger" data-reset-progress>Limpar histórico de respostas</button><button class="btn danger" data-reset-all>Restaurar todas as configurações</button></div>`}
-function render(){currentDrawPad=null;navRender();$('#breadcrumb').textContent='Biblioteca / '+routes[route];let m=scopeMetrics();$('#top-streak').textContent=m.attempts?`${m.correct} acertos acumulados`:'Seu percurso';document.body.classList.toggle('light',!!state.light);$('#theme-toggle').textContent=state.light?'☾':'☼';$('#content').innerHTML=({home,letters:lettersPage,tarot:tarotPage,seph:sephPage,worlds:worldsPage,pillars:pillarsPage,correspondences:corrPage,quiz:()=>session?quizPanel():quizStartPage(),settings:settingsPage})[route]();initDrawingPad();}
+function render(){currentDrawPad=null;navRender();$('#breadcrumb').textContent='Biblioteca / '+routes[route];let m=scopeMetrics();$('#top-streak').textContent=m.attempts?`${m.correct} acertos acumulados`:'Seu percurso';document.body.classList.toggle('light',!!state.light);$('#theme-toggle').textContent=state.light?'☾':'☼';$('#content').innerHTML=({home,letters:lettersPage,tarot:tarotPage,seph:sephPage,worlds:worldsPage,pillars:pillarsPage,correspondences:corrPage,quiz:()=>session?quizPanel():quizStartPage(),settings:settingsPage})[route]();initDrawingPad();if(route==='quiz'&&session&&!session.finished&&session.selected===null&&session.questions[session.index]?.kind==='type')$('#typed-answer')?.focus({preventScroll:true});}
 function activate(type,id){let k=type==='letter'?'letters':'cards',arr=state[k];if(arr.includes(id))state[k]=arr.filter(x=>x!==id);else state[k]=[...arr,id];persist();const modalOpen=!!$('#modal-overlay');if(modalOpen){if(type==='letter')showModal('letter',id);else showModal('tarot',id)}else render();toast(state[k].includes(id)?'Incluído nos quizzes.':'Pausado nos quizzes.');}
 function bulkChange(which,on){if(which==='letters')state.letters=on?L.map(l=>l.id):[];else if(which==='cards')state.cards=on?T.map(t=>t.id):[];else{let ids=T.filter(t=>t.type===which).map(t=>t.id);state.cards=on?[...new Set([...state.cards,...ids])]:state.cards.filter(x=>!ids.includes(x));}persist();render();toast('Seleção atualizada.');}
-function downloadJSON(){let blob=new Blob([JSON.stringify({application:'Arcana Atlas',version:3,exported:new Date().toISOString(),...state},null,2)],{type:'application/json;charset=utf-8'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='arcana-atlas-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Arquivo de backup preparado.');}
-async function importJSON(file){if(!file)return;try{let raw=JSON.parse(await file.text());if(!Array.isArray(raw.letters)||!Array.isArray(raw.cards))throw Error('Formato do backup inválido');state.letters=L.filter(l=>raw.letters.includes(l.id)).map(l=>l.id);state.cards=T.filter(t=>raw.cards.includes(t.id)).map(t=>t.id);state.stats=raw.stats&&typeof raw.stats==='object'?raw.stats:{};state.sessions=Array.isArray(raw.sessions)?raw.sessions.slice(-100):[];state.quizTypes=raw.quizTypes&&typeof raw.quizTypes==='object'&&!Array.isArray(raw.quizTypes)?raw.quizTypes:{};state.quizPreferences=raw.quizPreferences&&typeof raw.quizPreferences==='object'?{...defaultState().quizPreferences,...raw.quizPreferences}:defaultState().quizPreferences;state.drawV4Migrated=!!raw.drawV4Migrated;if(!state.drawV4Migrated&&Array.isArray(state.quizTypes.all)&&state.quizTypes.all.length===37){state.quizTypes.all.push('draw-letter')}state.drawV4Migrated=true;persist();render();toast('Backup importado com sucesso.')}catch(e){toast('Não foi possível importar este arquivo JSON.')}}
+function downloadJSON(){let blob=new Blob([JSON.stringify({application:'Arcana Atlas',version:5,exported:new Date().toISOString(),...state},null,2)],{type:'application/json;charset=utf-8'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='arcana-atlas-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Arquivo de backup preparado.');}
+async function importJSON(file){if(!file)return;try{let raw=JSON.parse(await file.text());if(!Array.isArray(raw.letters)||!Array.isArray(raw.cards))throw Error('Formato do backup inválido');state.letters=L.filter(l=>raw.letters.includes(l.id)).map(l=>l.id);state.cards=T.filter(t=>raw.cards.includes(t.id)).map(t=>t.id);state.stats=raw.stats&&typeof raw.stats==='object'?raw.stats:{};state.sessions=Array.isArray(raw.sessions)?raw.sessions.slice(-100):[];state.quizTypes=raw.quizTypes&&typeof raw.quizTypes==='object'&&!Array.isArray(raw.quizTypes)?raw.quizTypes:{};state.quizPreferences=raw.quizPreferences&&typeof raw.quizPreferences==='object'?{...defaultState().quizPreferences,...raw.quizPreferences}:defaultState().quizPreferences;state.drawV4Migrated=!!raw.drawV4Migrated;if(!state.drawV4Migrated&&Array.isArray(state.quizTypes.all)&&state.quizTypes.all.length===37){state.quizTypes.all.push('draw-letter')}state.drawV4Migrated=true;state.quizV5Migrated=!!raw.quizV5Migrated;migrateQuizTypesV5(state);persist();render();toast('Backup importado com sucesso.')}catch(e){toast('Não foi possível importar este arquivo JSON.')}}
 // Delegação de eventos preserva a navegação após cada renderização.
 document.addEventListener('click',e=>{
  const btn=e.target.closest('button,[data-tree-seph],[data-tree-path],[data-quiz-seph]');if(!btn)return;
@@ -458,6 +551,7 @@ document.addEventListener('click',e=>{
  if(btn.dataset.quizSeph){treeToggleNode(Number(btn.dataset.quizSeph));return}
  if(btn.hasAttribute('data-tree-confirm')){treeSubmit();return}
  if(btn.hasAttribute('data-draw-confirm')){drawingConfirm();return}
+ if(btn.hasAttribute('data-typing-confirm')){typingConfirm();return}
  if(btn.hasAttribute('data-draw-undo')){drawAction('undo');return}
  if(btn.hasAttribute('data-draw-clear')){drawAction('clear');return}
  if(btn.dataset.orderMove){const [from,step]=btn.dataset.orderMove.split(':').map(Number);orderMove(from,from+step);return}
@@ -494,6 +588,7 @@ if(t.matches('input[data-q-type]')){
   const all=allTypeIds(cat);if(selections.size===all.length)delete state.quizTypes[cat];else state.quizTypes[cat]=all.filter(x=>selections.has(x));
   persist();refreshTypePicker();return;
 }if(t.matches('input[data-setting]')){let k=t.dataset.setting==='letter'?'letters':'cards',id=t.value;if(t.checked&&!state[k].includes(id))state[k].push(id);if(!t.checked)state[k]=state[k].filter(x=>x!==id);persist();let label=t.closest('.toggle-item');label?.setAttribute('data-selected',t.checked?'true':'false');let counter=t.closest('.config-group')?.querySelector('.pill-count');if(counter)counter.textContent=`${state[k].length}/${k==='letters'?22:78}`;toast('Preferência salva no navegador.');return}if(t.matches('#import-input')){importJSON(t.files[0]);return}});
+document.addEventListener('submit',e=>{if(e.target.id==='typing-answer-form'){e.preventDefault();typingConfirm();}});
 document.addEventListener('input',e=>{let t=e.target;if(t.id==='letters-search'){filters.letters=t.value;$('#letter-results').innerHTML=letterResults()}if(t.id==='tarot-search'){filters.tarot=t.value;$('#tarot-results').innerHTML=tarotResults()}if(t.id==='settings-search'){filters.settings=t.value;$('#config-results').innerHTML=configGroups()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modal-overlay'))hideModal();if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-tree-seph],[data-quiz-seph]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}});
 let dragOrderFrom=null;

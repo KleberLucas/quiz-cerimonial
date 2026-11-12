@@ -1,14 +1,30 @@
-# ARCANA ATLAS V4 — Academia Hermética
+# ARCANA ATLAS V5 — Academia Hermética
 
 Aplicação educacional desenvolvida em **HTML, CSS e JavaScript puro**, sem React, backend, banco de dados, CDN de scripts, dependências nem instalação.
 
-## Nova V4: desenhe letras hebraicas no próprio quiz
+## Novidades da V5 — lousa por carta/caminho e resposta digitada
+
+O **Modo Quiz** ganhou **cinco novos tipos**, sem alterar os modos anteriores:
+
+1. **Imagem de Arcano Maior → desenhe a letra hebraica do caminho.**
+2. **Número do caminho → desenhe a letra hebraica.**
+3. **Imagem do Arcano Maior → digite o número do Arcano** (0–21 ou 0, I–XXI).
+4. **Imagem do Arcano Maior → digite o número do caminho** (11–32).
+5. **Símbolo hebraico → digite o nome da letra**, aceitando grafias usuais.
+
+Todos são compatíveis com a seleção múltipla de **Tipo de pergunta**, com as letras e cartas ativas e com o histórico local. As respostas das novas perguntas não têm alternativas na tela. As modalidades de lousa ocultam o nome da letra quando o estímulo é uma carta ou um número de caminho.
+
+**V5 com todos os conteúdos habilitados: 832 desafios-base, 43 tipos de pergunta e 814 desafios elegíveis no modo Misturar todas** (as demais sequências do jogo de ordenação ficam na categoria exclusiva). O conjunto ativo diminui conforme você desabilita cartas, letras ou tipos.
+
+Leia **`NOVIDADES-v5.md`** para critérios de correção, diferenças entre numeração do Arcano e do caminho e compatibilidade de versões.
+
+## Histórico: V4 — desenhe letras hebraicas
 
 No **Modo quiz**, escolha **✍ Lousa · desenhar letras hebraicas** em **Conteúdo ou modalidade**. Desenhe com mouse, toque ou caneta e obtenha uma avaliação local da semelhança de sua forma com a letra impressa, com comparativo visual, desfazer e limpar. A modalidade tem **22 desafios** e respeita quais letras estão ativas. Pode também ser misturada às demais pelo seletor de tipos na categoria **Misturar todas**.
 
 São **722 desafios-base no banco completo, 38 tipos de pergunta** e 704 modelos elegíveis por padrão em Misturar todas. O comparador é **heurístico e aproximado**, sem OCR/IA e sem coleta dos desenhos. Consulte **`NOVIDADES-v4.md`** para detalhes do algoritmo, limites e instruções de atualização.
 
-**Arquivos principais da V4:** `index.html`, `styles.css`, `data.js`, `app.js` e **`drawing.js`** (novo). Não elimine `drawing.js`, pois a lousa depende dele.
+**Arquivos principais da V5:** `index.html`, `styles.css`, `data.js`, `app.js` e **`drawing.js`** (novo). Não elimine `drawing.js`, pois a lousa depende dele.
 
 ## Como abrir
 
@@ -104,3 +120,14 @@ Fontes para as correspondências e seu caráter histórico:
 - `assets/cards/` — onde são guardadas as imagens do baralho.
 
 Não é necessário `npm install`, `pip install`, servidor HTTP ou VS Code.
+
+
+## Novos modos V5: lousa e digitação
+
+- **Lousa por Arcano:** a carta maior é exibida e você desenha a letra do caminho (carta e letra precisam estar ativas).
+- **Lousa por caminho:** o número 11–32 aparece e você desenha a letra correspondente (letra ativa).
+- **Digite o número do Arcano:** a imagem aparece; aceita **3 ou III**, por exemplo, e **0** para o Louco (carta ativa).
+- **Digite o caminho do Arcano:** imagem aparece e você digita 11–32 (carta ativa).
+- **Digite o nome da letra:** símbolo aparece, sem alternativas, e você digita o nome (letra ativa). Aceita grafias usuais, ignorando maiúsculas e acentos.
+
+O filtro múltiplo da V3 continua disponível em **Modo Quiz → Tipo de pergunta**, com a categoria dedicada **Digitação** e os três desafios na categoria **Lousa**. Todas as seleções e estatísticas continuam em `localStorage` com a mesma chave do projeto original. Para migrar em outra origem/navegador, exporte o backup na versão anterior e importe-o na V5.

@@ -152,3 +152,33 @@ body.light .draw-sample{background:#fffaf0}
 body.light .draw-target{color:#79582c}
 @media(max-width:900px){.draw-game{grid-template-columns:1fr}.draw-side{display:grid;grid-template-columns:1fr 160px;align-items:center;text-align:left}.draw-side .draw-target-holder{grid-column:2;grid-row:1/span 5;height:145px;margin:0}.draw-side .draw-disclaimer,.draw-side .draw-learning-tip{grid-column:1/-1}.draw-side .draw-letter-name{margin:4px 0}.draw-side .draw-instruction{margin:0}}
 @media(max-width:580px){.draw-main,.draw-side{padding:13px}.draw-side{display:flex;text-align:center}.draw-letter-name{font-size:32px}.draw-target-holder{width:100%!important;max-width:250px;margin:8px auto!important}.draw-comparison{gap:7px}.draw-sample{padding:6px;min-height:150px}.draw-sample .draw-target{font-size:90px}.draw-buttons{width:100%;display:grid;grid-template-columns:1fr 1fr}.draw-buttons .btn{white-space:normal;font-size:11px;padding:8px}.draw-toolbar{gap:6px}.draw-game{gap:12px}.quiz-feature-grid{grid-template-columns:1fr}}
+
+/* V5 · desafios de desenho a partir de Arcanos/caminhos e respostas digitadas */
+.quiz-feature-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.draw-source-card,.draw-source-path{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;margin:3px 0 10px}
+.draw-source-label{color:var(--gold);letter-spacing:2px;font-weight:700;font-size:10px}
+.draw-source-card .tarot-image{width:min(160px,100%);height:auto;max-height:265px;object-fit:contain;box-shadow:0 12px 30px rgba(0,0,0,.2);border-radius:6px}
+.draw-source-path{background:radial-gradient(circle at center,var(--goldbg),transparent 75%);border:1px solid var(--line2);border-radius:13px;padding:19px;gap:0}
+.draw-source-path span{font-size:12px;letter-spacing:2px;color:var(--muted)}
+.draw-source-path strong{font:normal 76px/1.25 Georgia,serif;color:var(--gold2)}
+.draw-side .draw-letter-name{line-height:1.22}
+.typing-game{display:grid;grid-template-columns:minmax(220px,.9fr) minmax(260px,1.1fr);gap:28px;align-items:center;padding:5px 0 10px}
+.typing-reference{display:flex;align-items:center;flex-direction:column;justify-content:center;gap:10px;min-width:0;min-height:280px;background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:13px;padding:18px}
+.typing-card-image .tarot-image{height:300px;width:auto;max-width:100%;object-fit:contain;box-shadow:0 12px 28px #0003;border-radius:5px}
+.typing-card-image{display:flex;justify-content:center;width:100%}
+.typing-glyph{display:flex;justify-content:center;align-items:center;font-size:154px;min-height:220px;color:var(--gold2);line-height:1.1;direction:rtl}
+.typing-image-caption{font-size:11px;letter-spacing:.5px;text-align:center;color:var(--muted)}
+.typing-form{display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0}
+.typing-form label{font-size:13px;font-weight:700;color:var(--gold2)}
+.typing-input-row{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.typing-input-row .typing-answer{min-width:130px;flex:1 1 180px;width:100%;padding:14px 15px;font-size:18px;letter-spacing:.3px}
+.typing-input-row .typing-answer.typing-correct{border-color:#75b89c;background:#153a31;color:#deffed}
+.typing-input-row .typing-answer.typing-incorrect{border-color:#cb7a73;background:#402a2e;color:#ffe5e0}
+body.light .typing-input-row .typing-answer.typing-correct{color:#23553e;background:#e3f5ea}
+body.light .typing-input-row .typing-answer.typing-incorrect{color:#953f38;background:#f7e7e4}
+.typing-submit{white-space:nowrap;min-height:52px}
+.typing-hint{margin:0;font-size:12px;line-height:1.6;color:var(--muted)}
+.typing-form .feedback{margin-top:6px}
+@media(max-width:1100px){.quiz-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.typing-game{grid-template-columns:1fr;gap:18px}.typing-reference{min-height:200px}.typing-card-image .tarot-image{height:235px}.typing-glyph{font-size:120px;min-height:150px}}
+@media(max-width:540px){.quiz-feature-grid{grid-template-columns:1fr}.draw-source-card .tarot-image{max-height:240px}.typing-input-row{flex-direction:column}.typing-input-row .typing-answer{flex:0 0 auto}.typing-submit{width:100%}.typing-reference{padding:13px}}
