@@ -1,6 +1,16 @@
-# ARCANA ATLAS V5 — Academia Hermética
+# ARCANA ATLAS V6 — Academia Hermética
 
 Aplicação educacional desenvolvida em **HTML, CSS e JavaScript puro**, sem React, backend, banco de dados, CDN de scripts, dependências nem instalação.
+
+## Novidades da V6 — alfabeto em sequência e digitação de Arcanos
+
+**Nova categoria de quiz:** `↔ Alfabeto em sequência · normal e inversa`, com quatro modos: **Aleph → Tav** e **Tav → Aleph**, tanto digitando quanto desenhando cada letra. O exercício percorre **somente as letras ativadas**, sempre em sequência real nessa categoria (não sorteada). Na digitação são aceitos **nome transliterado ou símbolo hebraico**. Pode combinar dois ou mais modos no mesmo treino, com um percurso completo por modo.
+
+**Dois novos exercícios de digitação (sem imagem):** `Número do Arcano Maior → nome da carta` e `Nome do Arcano Maior → número da carta`. Ambos respeitam apenas os Arcanos Maiores ativados. O número da carta é de **0 a 21** (aceita algarismos romanos/arábicos), não o número do caminho (11 a 32).
+
+**Enter duplo:** um Enter confirma a resposta digitada; após a correção, outro Enter avança ou conclui a sessão. O campo seguinte recebe foco automaticamente.
+
+**V6:** 964 modelos de desafio-base, 49 tipos de pergunta, com todas as 22 letras e 78 cartas habilitadas. Isso equivale a **132 novos modelos** em relação à V5. A contagem de desafios elegíveis depende dos filtros e da categoria, pois a ordenação possui variações especiais de tamanho. Leia os detalhes em **`NOVIDADES-v6.md`**.
 
 ## Novidades da V5 — lousa por carta/caminho e resposta digitada
 
@@ -24,7 +34,7 @@ No **Modo quiz**, escolha **✍ Lousa · desenhar letras hebraicas** em **Conte�
 
 São **722 desafios-base no banco completo, 38 tipos de pergunta** e 704 modelos elegíveis por padrão em Misturar todas. O comparador é **heurístico e aproximado**, sem OCR/IA e sem coleta dos desenhos. Consulte **`NOVIDADES-v4.md`** para detalhes do algoritmo, limites e instruções de atualização.
 
-**Arquivos principais da V5:** `index.html`, `styles.css`, `data.js`, `app.js` e **`drawing.js`** (novo). Não elimine `drawing.js`, pois a lousa depende dele.
+**Arquivos principais (V6):** `index.html`, `styles.css`, `data.js`, `app.js` e **`drawing.js`** (novo). Não elimine `drawing.js`, pois a lousa depende dele.
 
 ## Como abrir
 

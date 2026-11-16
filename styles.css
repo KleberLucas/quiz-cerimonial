@@ -182,3 +182,17 @@ body.light .typing-input-row .typing-answer.typing-incorrect{color:#953f38;backg
 @media(max-width:1100px){.quiz-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.typing-game{grid-template-columns:1fr;gap:18px}.typing-reference{min-height:200px}.typing-card-image .tarot-image{height:235px}.typing-glyph{font-size:120px;min-height:150px}}
 @media(max-width:540px){.quiz-feature-grid{grid-template-columns:1fr}.draw-source-card .tarot-image{max-height:240px}.typing-input-row{flex-direction:column}.typing-input-row .typing-answer{flex:0 0 auto}.typing-submit{width:100%}.typing-reference{padding:13px}}
+
+/* V6 — Sequência alfabética e cartões texto/número, também no celular */
+.seq-cue,.arcana-cue{width:100%;min-height:210px;border-radius:16px;border:1px solid var(--line2);background:radial-gradient(circle at center,var(--goldbg),transparent 77%),var(--panel2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;gap:5px}
+.seq-cue>span,.arcana-cue>span{font-size:11px;font-weight:800;letter-spacing:1.7px;color:var(--gold)}
+.seq-cue>strong,.arcana-cue>strong{font:normal clamp(70px,8vw,112px)/1.2 Georgia,serif;color:var(--gold2);word-break:break-word}
+.seq-cue>strong small{font-size:22px;color:var(--muted)}
+.seq-cue p,.arcana-cue>small{color:var(--muted);font-size:12px;margin:0}
+.arcana-name-cue>strong{font-size:clamp(27px,3.5vw,45px);line-height:1.2;margin:13px 0}
+.draw-side .seq-cue{min-height:145px;margin:0 0 12px}
+.draw-side .seq-cue>strong{font-size:65px}
+.enter-next-tip{margin-top:14px!important;padding:10px 13px;border-radius:8px;background:var(--goldbg);color:var(--gold2)!important;font-weight:600}
+.enter-next-tip kbd{padding:2px 6px;border:1px solid var(--line2);border-radius:5px;font:600 12px system-ui,sans-serif}
+#quiz-count-config[hidden]{display:none!important}
+@media(max-width:600px){.seq-cue,.arcana-cue{min-height:175px}.seq-cue>strong,.arcana-cue>strong{font-size:74px}.arcana-name-cue>strong{font-size:30px}.draw-side .seq-cue{min-height:115px}}
